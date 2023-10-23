@@ -42,7 +42,13 @@ APPOINTMENT_MENU(){
    SERVICE_NAME=$(echo $GET_SERVICE_NAME| sed 's/ //g')
   CUSTOMER_ID=$($PSQL "SELECT customer_id 
   FROM customers WHERE phone='$CUSTOMER_PHONE'")
-
+echo -e "\n What time would you like your $SERVICE_NAME, $CUSTOMER_NAME ?"
+read SERVICE_TIME
+ SAVE_APPOINTMENT=$($PSQL "INSERT INTO appointments(customer_id, service_id, time) VALUES($CUSTOMER_ID, $SERVICE_ID_SELECTED, '$SERVICE_TIME')")"
+  if [[ $SAVED_TO_TABLE_APPOINTMENTS == "INSERT 0 1" ]]
+  then
+    echo -e "\nI have put you down for a $SERVICE_NAME at $SERVICE_TIME, $CUSTOMER_NAME."
+  fi
   fi
 }
 
