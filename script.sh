@@ -1,26 +1,51 @@
 #!/bin/bash
 PSQL="psql --username=freecodecamp --dbname=salon -t --no-align -c"
 
-echo -e '\n~~~~~ MY SALON ~~~~~' 
-echo -e "\nWelcome to My Salon, how can I help you?"
+echo -e '\n~~~~~ MY SALON ~~~~~'
 
-MAIN_MENU(){
-SERVICES=$($PSQL "SELECT service_id, name FROM services")
+MAIN_MENU() {
+  if [[ $1 ]]; then
+    echo -e "\n$1"
+  fi
+  echo -e "\nWelcome to My Salon, how can I help you?\n"
 
-echo "$SERVICES" | while read SERVICE_ID BAR NAME
- do
-  echo "$SERVICE_ID  $NAME" | sed 's\|\) \'
- done 
-read SERVICE_SELECTION
-SERVICE_AVAILABLE=$($PSQL "SELECT service_id FROM services WHERE service_id=$SERVICE_SELECTION")
- if [[ -z $SERVICE_AVAILABLE ]]
-  then
-  MAIN_MENU "I could not find that service. What would you like today?"
-  else 
-  echo $SERVICE_AVAILABLE | while read SERVICE_ID BAR NAME
-  do
-   echo "$SERVICE_ID $NAME | sed 's\|\) \'"
-  done
- fi 
+  # Fetch the list of services
+  SERVICES=$($PSQL "SELECT * FROM services")
+  echo "$SERVICES" | sed 's/|/) /'
+  
+  read SERVICE_ID_SELECTED
+  case $SERVICE_ID_SELECTED in
+    1) APPOINTMENT_MENU ;;
+    2) APPOINTMENT_MENU ;;
+    3) APPOINTMENT_MENU ;;
+    *) MAIN_MENU "I could not find that service. What would you like today?" ;;
+  esac
 }
+APPOINTMENT_MENU(){
+  echo "What's your phone number?"
+  read PHONE_NUMBER
+   if [[ ! $PHONE_NUMBER =~ ^[0-9]+$ ]]; then
+  echo "Invalid phone number. 
+  Please enter a valid numeric phone number."
+  else
+   NAME=$($PSQL "SELECT name FROM customers 
+   WHERE phone=$PHONE_NUMBER")
+   if [[ -z $NAME ]]
+    then
+     echo -e "\n What's your name?"
+     read CUSTOMER_NAME
+      SAVE_CUSTOMER=$($PSQL "INSERT INTO customers(phone, name)
+      VALUES('$PHONE_NUMBER', '$CUSTOMER_NAME')")
+     fi
+   GET_SERVICE_NAME=$($PSQL "SELECT name FROM services
+   WHERE service_id=$SERVICE_ID_SELECTED")
+   SERVICE_NAME=$(echo $GET_SERVICE_NAME| sed 's/ //g')
+  CUSTOMER_ID=$($PSQL "SELECT customer_id 
+  FROM customers WHERE phone='$CUSTOMER_PHONE'")
+
+  fi
+}
+
+
 MAIN_MENU
+
