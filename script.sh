@@ -9,16 +9,18 @@ MAIN_MENU() {
   fi
   echo -e "\nWelcome to My Salon, how can I help you?\n"
 
-  # Fetch the list of services
-  SERVICES=$($PSQL "SELECT * FROM services")
-  echo "$SERVICES" | sed 's/|/) /'
-  
+  # Fetch the list of services  
+  LIST_SERVICES=$($PSQL "SELECT * FROM services")
+  echo "$LIST_SERVICES" | while read SERVICE_ID BAR SERVICE
+  do
+    ID=$(echo $SERVICE_ID | sed 's/ //g')
+    NAME=$(echo $SERVICE | sed 's/ //g')
+    echo "$ID) $SERVICE"
+  done
   read SERVICE_ID_SELECTED
   case $SERVICE_ID_SELECTED in
-    1) APPOINTMENT_MENU ;;
-    2) APPOINTMENT_MENU ;;
-    3) APPOINTMENT_MENU ;;
-    *) MAIN_MENU "I could not find that service. What would you like today?" ;;
+    [1-5]) NEXT ;;
+        *) GET_SERVICES_ID "I could not find that service. What would you like today?" ;;
   esac
 }
 APPOINTMENT_MENU(){
